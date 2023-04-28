@@ -1,0 +1,11 @@
+{
+  "name": "dsa-periphery-contract",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Instadapp/dsa-periphery-contract.git",
+  "license": "MIT",
+  "dependencies": {
+    "@connext/interfaces": "^2.0.5",
+    "@openzeppelin/contracts": "^4.8.3"
+  }
+}
