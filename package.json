@@ -7,7 +7,10 @@
     "build": "npm run clean && npm run compile",
     "clean": "npx hardhat clean",
     "compile": "npx hardhat compile",
-    "test": "npx hardhat test"
+    "test": "npx hardhat test",
+    "forge:install": "forge install",
+    "forge:build": "forge build --via-ir",
+    "forge:test": "forge test --via-ir"
   },
   "repository": {
     "type": "git",
@@ -24,7 +27,7 @@
   "dependencies": {
     "@connext/interfaces": "^2.0.5",
     "@openzeppelin/contracts": "^4.8.3"
-   },
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-foundry": "^1.0.1",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
