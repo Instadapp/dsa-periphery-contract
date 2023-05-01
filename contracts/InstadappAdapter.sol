@@ -44,7 +44,7 @@ contract InstadappAdapter is EIP712 {
   /// @dev This is the typehash for the Sig struct.
   bytes32 public constant SIG_TYPEHASH =
     keccak256(
-      "Sig(CastData cast,bytes32 salt, uint256 deadline)CastData(string[] _targetNames,bytes[] _datas,address _origin)"
+      "Sig(CastData cast,bytes32 salt,uint256 deadline)CastData(string[] _targetNames,bytes[] _datas,address _origin)"
     );
 
   /// Constructor
