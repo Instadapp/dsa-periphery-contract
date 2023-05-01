@@ -24,7 +24,7 @@
   "dependencies": {
     "@connext/interfaces": "^2.0.5",
     "@openzeppelin/contracts": "^4.8.3"
-   }
+   },
   "devDependencies": {
     "@nomicfoundation/hardhat-foundry": "^1.0.1",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
