@@ -1,11 +1,34 @@
 {
   "name": "dsa-periphery-contract",
-  "version": "1.0.0",
+  "version": "0.0.1",
+  "description": "DSA Periphery Contract",
   "main": "index.js",
-  "repository": "https://github.com/Instadapp/dsa-periphery-contract.git",
+  "scripts": {
+    "build": "npm run clean && npm run compile",
+    "clean": "npx hardhat clean",
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Instadapp/dsa-periphery-contract/"
+  },
+  "author": {
+    "name": "INSTADAPP LABS LLC",
+    "email": "info@instadapp.io"
+  },
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Instadapp/dsa-periphery-contract/issues"
+  },
   "dependencies": {
     "@connext/interfaces": "^2.0.5",
     "@openzeppelin/contracts": "^4.8.3"
+   }
+  "devDependencies": {
+    "@nomicfoundation/hardhat-foundry": "^1.0.1",
+    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "hardhat": "^2.14.0",
+    "typescript": "^5.0.4"
   }
 }
