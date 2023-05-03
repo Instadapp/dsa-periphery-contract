@@ -73,7 +73,7 @@ contract InstadappAdapter is EIP712 {
   /// @dev This function is used to hash the CastData struct.
   /// @param castData The data that will be sent to the targets.
   /// @return bytes32 that is the hash of the CastData struct.
-  function getcastDataSigDigest(CastData memory castData) public pure returns (bytes32) {
+  function hash(CastData memory castData) public pure returns (bytes32) {
     return keccak256(abi.encode(CASTDATA_TYPEHASH, castData._targetNames, castData._datas, castData._origin));
   }
 
