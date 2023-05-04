@@ -69,7 +69,7 @@ contract InstadappAdapter is EIP712 {
   ) internal {
     IDSA dsa = IDSA(dsaAddress);
     // check if Auth is valid, and included in the DSA
-    require(auth != address(0) || dsa.isAuth(auth), "Invalid Auth");
+    require(auth != address(0) && dsa.isAuth(auth), "Invalid Auth");
 
     // check if signature is not replayed
     require(!sigReplayProtection[salt], "Replay Attack");
