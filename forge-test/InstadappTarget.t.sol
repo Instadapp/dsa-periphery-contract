@@ -10,18 +10,33 @@ import {TestHelper} from "./utils/TestHelper.sol";
 import {InstadappTarget} from "../contracts/InstadappTarget.sol";
 import {TestERC20} from "./utils/TestERC20.sol";
 
+contract MockInstadappReceiver is InstadappAdapter {
+  constructor() {}
+
+  function tryGetDigest(
+    CastData memory castData,
+    bytes32 salt,
+    uint256 deadline
+  ) external returns(bytes32) {
+    return getDigest(castData, salt, deadline);
+  }
+}
+
 contract InstadappTargetTest is TestHelper, EIP712 {
   // ============ Storage ============
   InstadappTarget instadappTarget;
+  address instadappReceiver = 0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f;
 
   // ============ Events ============
-  event AuthCast(bytes32 transferId, address dsaAddress, address auth, bool success, bytes returnedData);
+  event AuthCast(bytes32 indexed transferId, address indexed dsaAddress, bool indexed success, address auth,  bytes returnedData);
 
   // ============ Test set up ============
   function setUp() public override {
     super.setUp();
 
     instadappTarget = new InstadappTarget(MOCK_CONNEXT);
+    MockInstadappReceiver _instadappReceiver = new MockInstadappReceiver();
+    vm.etch(instadappReceiver, address(_instadappReceiver).code);
   }
 
   constructor() EIP712("InstaTargetAuth", "1") {}
@@ -85,11 +100,11 @@ contract InstadappTargetTest is TestHelper, EIP712 {
     address _origin = originSender;
     address dsa = address(0x111222333);
     bytes32 salt = bytes32(0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef);
+    uint256 deadline = 10000;
 
     InstadappAdapter.CastData memory castData = InstadappAdapter.CastData(_targetNames, _datas, _origin);
-    bytes32 digest = _hashTypedDataV4(
-      keccak256(abi.encode(instadappTarget.SIG_TYPEHASH, instadappTarget.hash(castData), salt))
-    );
+    bytes32 digest = MockInstadappReceiver(instadappReceiver).tryGetDigest(castData, salt, deadline);
+
     (uint8 v, bytes32 r, bytes32 s) = vm.sign(1, digest);
     bytes memory signature = abi.encodePacked(r, s, v);
     address auth = originSender;
@@ -97,7 +112,7 @@ contract InstadappTargetTest is TestHelper, EIP712 {
 
     bytes memory returnedData = hex"";
     vm.expectEmit(true, false, false, true);
-    emit AuthCast(transferId, dsa, auth, false, returnedData);
+    emit AuthCast(transferId, dsa, false, auth, returnedData);
     deal(address(asset), address(instadappTarget), amount);
     vm.prank(MOCK_CONNEXT);
     instadappTarget.xReceive(transferId, amount, address(asset), address(0), 0, callData);
