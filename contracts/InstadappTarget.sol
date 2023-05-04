@@ -62,9 +62,9 @@ contract InstadappTarget is IXReceiver, InstadappAdapter {
     (
       address dsaAddress,
       address auth,
-      bytes memory signature,
+      bytes memory _signature,
       CastData memory _castData,
-      bytes32 _salt,
+      bytes32 salt,
       uint256 deadline
     ) = abi.decode(_callData, (address, address, bytes, CastData, bytes32, uint256));
 
@@ -81,9 +81,9 @@ contract InstadappTarget is IXReceiver, InstadappAdapter {
         "authCast(address,address,bytes,CastData,bytes32,uint256)",
         dsaAddress,
         auth,
-        signature,
+        _signature,
         _castData,
-        _salt,
+        salt,
         deadline
       )
     );
