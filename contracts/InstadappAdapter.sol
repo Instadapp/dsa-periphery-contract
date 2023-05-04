@@ -102,7 +102,7 @@ contract InstadappAdapter is EIP712 {
     require(!sigReplayProtection[salt], "Replay Attack");
 
     // check if signature is not expired
-    require(block.timestamp <= deadline, "Signature Expired");
+    require(block.timestamp < deadline, "Signature Expired");
 
     // check if signature is valid, and not replayed
     require(verify(auth, signature, castData, salt, deadline), "Invalid signature");
