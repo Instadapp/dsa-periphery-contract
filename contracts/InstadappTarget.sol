@@ -18,7 +18,7 @@ contract InstadappTarget is IXReceiver, InstadappAdapter {
   using SafeERC20 for IERC20;
   /// Storage
   /// @dev This is the address of the Connext contract.
-  IConnext public connext;
+  IConnext public immutable connext;
 
   /// Events
   /// @dev This event is emitted when the authCast function is called.
