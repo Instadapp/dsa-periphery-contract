@@ -78,7 +78,7 @@ contract InstadappTarget is IXReceiver, InstadappAdapter {
     // calling via encodeWithSignature as alternative to try/catch
     (bool success, bytes memory returnedData) = address(this).call(
       abi.encodeWithSignature(
-        "authCast(address,address,bytes,CastData,bytes32, uint256)",
+        "authCast(address,address,bytes,CastData,bytes32,uint256)",
         dsaAddress,
         auth,
         signature,
