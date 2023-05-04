@@ -13,11 +13,7 @@ import {TestERC20} from "./utils/TestERC20.sol";
 contract MockInstadappReceiver is InstadappAdapter {
   constructor() {}
 
-  function tryGetDigest(
-    CastData memory castData,
-    bytes32 salt,
-    uint256 deadline
-  ) external returns(bytes32) {
+  function tryGetDigest(CastData memory castData, bytes32 salt, uint256 deadline) external returns (bytes32) {
     return getDigest(castData, salt, deadline);
   }
 }
@@ -28,15 +24,21 @@ contract InstadappTargetTest is TestHelper, EIP712 {
   address instadappReceiver = 0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f;
 
   // ============ Events ============
-  event AuthCast(bytes32 indexed transferId, address indexed dsaAddress, bool indexed success, address auth,  bytes returnedData);
+  event AuthCast(
+    bytes32 indexed transferId,
+    address indexed dsaAddress,
+    bool indexed success,
+    address auth,
+    bytes returnedData
+  );
 
   // ============ Test set up ============
   function setUp() public override {
     super.setUp();
-
-    instadappTarget = new InstadappTarget(MOCK_CONNEXT);
     MockInstadappReceiver _instadappReceiver = new MockInstadappReceiver();
     vm.etch(instadappReceiver, address(_instadappReceiver).code);
+
+    instadappTarget = new InstadappTarget(MOCK_CONNEXT);
   }
 
   constructor() EIP712("InstaTargetAuth", "1") {}
