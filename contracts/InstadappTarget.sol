@@ -22,7 +22,7 @@ contract InstadappTarget is IXReceiver, InstadappAdapter {
 
   /// Events
   /// @dev This event is emitted when the authCast function is called.
-  event AuthCast(bytes32 transferId, address dsaAddress, address auth, bool success, bytes returnedData);
+  event AuthCast(bytes32 indexed transferId, address indexed dsaAddress, bool indexed success, address auth,  bytes returnedData);
 
   /// Modifiers
   /// @dev This modifier is used to ensure that only the Connext contract can call the function.
@@ -88,7 +88,7 @@ contract InstadappTarget is IXReceiver, InstadappAdapter {
       )
     );
 
-    emit AuthCast(_transferId, dsaAddress, auth, success, returnedData);
+    emit AuthCast(_transferId, dsaAddress, success, auth, returnedData);
 
     return returnedData;
   }
