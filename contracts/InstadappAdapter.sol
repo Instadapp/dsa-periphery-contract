@@ -15,13 +15,13 @@ import {IDSA} from "./interfaces/IDSA.sol";
 contract InstadappAdapter is EIP712 {
   /// Structs
   /// @dev This struct is used to encode the data for InstadappTarget.cast function.
-  /// @param _targetNames The names of the targets that will be called.
-  /// @param _datas The data that will be sent to the targets.
-  /// @param _origin The address that will be used as the origin of the call.
+  /// @param targetNames The names of the targets that will be called.
+  /// @param datas The data that will be sent to the targets.
+  /// @param origin The address that will be used as the origin of the call.
   struct CastData {
-    string[] _targetNames;
-    bytes[] _datas;
-    address _origin;
+    string[] targetNames;
+    bytes[] datas;
+    address origin;
   }
 
   /// @dev This struct is used to encode the data that is signed by the auth address.
@@ -39,12 +39,12 @@ contract InstadappAdapter is EIP712 {
   /// Constants
   /// @dev This is the typehash for the CastData struct.
   bytes32 public constant CASTDATA_TYPEHASH =
-    keccak256("CastData(string[] _targetNames,bytes[] _datas,address _origin)");
+    keccak256("CastData(string[] targetNames,bytes[] datas,address origin)");
 
   /// @dev This is the typehash for the Sig struct.
   bytes32 public constant SIG_TYPEHASH =
     keccak256(
-      "Sig(CastData cast,bytes32 salt,uint256 deadline)CastData(string[] _targetNames,bytes[] _datas,address _origin)"
+      "Sig(CastData cast,bytes32 salt,uint256 deadline)CastData(string[] targetNames,bytes[] datas,address origin)"
     );
 
   /// Constructor
@@ -84,7 +84,7 @@ contract InstadappAdapter is EIP712 {
     sigReplayProtection[salt] = true;
 
     // Cast the call
-    dsa.cast(castData._targetNames, castData._datas, castData._origin);
+    dsa.cast(castData.targetNames, castData.datas, castData.origin);
   }
 
   /// @dev This function is used to verify the signature.
@@ -115,7 +115,7 @@ contract InstadappAdapter is EIP712 {
   /// @param castData The data that will be sent to the targets.
   /// @return bytes32 that is the hash of the CastData struct.
   function getHash(CastData memory castData) internal pure returns (bytes32) {
-    return keccak256(abi.encode(CASTDATA_TYPEHASH, castData._targetNames, castData._datas, castData._origin));
+    return keccak256(abi.encode(CASTDATA_TYPEHASH, castData.targetNames, castData.datas, castData.origin));
   }
 
 }
