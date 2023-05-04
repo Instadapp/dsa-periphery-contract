@@ -50,33 +50,6 @@ contract InstadappAdapter is EIP712 {
   /// Constructor
   constructor() EIP712("InstaTargetAuth", "1") {}
 
-  /// Public functions
-  /// @dev This function is used to verify the signature.
-  /// @param auth The address of the auth.
-  /// @param signature The signature of the auth.
-  /// @param castData The data that will be sent to the targets.
-  /// @param salt The salt that will be used to prevent replay attacks.
-  /// @param deadline The deadline that will be used to prevent replay attacks.
-  /// @return boolean that indicates if the signature is valid.
-  function verify(
-    address auth,
-    bytes memory signature,
-    CastData memory castData,
-    bytes32 salt,
-    uint256 deadline
-  ) public view returns (bool) {
-    bytes32 digest = _hashTypedDataV4(keccak256(abi.encode(SIG_TYPEHASH, hash(castData), salt, deadline)));
-    address signer = ECDSA.recover(digest, signature);
-    return signer == auth;
-  }
-
-  /// @dev This function is used to hash the CastData struct.
-  /// @param castData The data that will be sent to the targets.
-  /// @return bytes32 that is the hash of the CastData struct.
-  function hash(CastData memory castData) public pure returns (bytes32) {
-    return keccak256(abi.encode(CASTDATA_TYPEHASH, castData._targetNames, castData._datas, castData._origin));
-  }
-
   /// Internal functions
   /// @dev This function is used to forward the call to dsa.cast function.
   /// Cast the call is forwarded, the signature is verified and the salt is stored in the sigReplayProtection mapping.
@@ -113,4 +86,36 @@ contract InstadappAdapter is EIP712 {
     // Cast the call
     dsa.cast(castData._targetNames, castData._datas, castData._origin);
   }
+
+  /// @dev This function is used to verify the signature.
+  /// @param auth The address of the auth.
+  /// @param signature The signature of the auth.
+  /// @param castData The data that will be sent to the targets.
+  /// @param salt The salt that will be used to prevent replay attacks.
+  /// @param deadline The deadline that will be used to prevent replay attacks.
+  /// @return boolean that indicates if the signature is valid.
+  function verify(
+    address auth,
+    bytes memory signature,
+    CastData memory castData,
+    bytes32 salt,
+    uint256 deadline
+  ) internal view returns (bool) {
+    bytes32 digest = getDigest(castData, salt, deadline);
+    address signer = ECDSA.recover(digest, signature);
+    return signer == auth;
+  }
+
+  
+  function getDigest(CastData memory castData, bytes32 salt, uint256 deadline) internal view returns (bytes32) {
+    return _hashTypedDataV4(keccak256(abi.encode(SIG_TYPEHASH, getHash(castData), salt, deadline)));
+  }
+
+  /// @dev This function is used to hash the CastData struct.
+  /// @param castData The data that will be sent to the targets.
+  /// @return bytes32 that is the hash of the CastData struct.
+  function getHash(CastData memory castData) internal pure returns (bytes32) {
+    return keccak256(abi.encode(CASTDATA_TYPEHASH, castData._targetNames, castData._datas, castData._origin));
+  }
+
 }
