@@ -18,6 +18,16 @@ contract MockInstadappReceiver is InstadappAdapter {
   ) external payable {
     authCast(dsaAddress, auth, signature, castData, salt, deadline);
   }
+
+  function tryVerify(
+    address auth,
+    bytes memory signature,
+    CastData memory castData,
+    bytes32 salt,
+    uint256 deadline
+  ) external returns (bool) {
+    return verify(auth, signature, castData, salt, deadline);
+  }
 }
 
 contract InstadappAdapterTest is TestHelper {
@@ -139,7 +149,7 @@ contract InstadappAdapterTest is TestHelper {
 
     address auth = originSender;
     vm.warp(timestamp);
-    assertEq(MockInstadappReceiver(instadappReceiver).verify(auth, signature, castData, salt, deadline), true);
+    assertEq(MockInstadappReceiver(instadappReceiver).tryVerify(auth, signature, castData, salt, deadline), true);
   }
 
   function test_InstadappAdapter__verify_shouldReturnFalse() public {
@@ -162,6 +172,6 @@ contract InstadappAdapterTest is TestHelper {
 
     address auth = originSender;
     bytes32 salt = bytes32(abi.encode(1));
-    assertEq(MockInstadappReceiver(instadappReceiver).verify(auth, signature, castData, salt, deadline), false);
+    assertEq(MockInstadappReceiver(instadappReceiver).tryVerify(auth, signature, castData, salt, deadline), false);
   }
 }
