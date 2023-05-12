@@ -22,7 +22,7 @@ contract InstadappTarget is IXReceiver, InstadappAdapter {
 
   /// Events
   /// @dev This event is emitted when the authCast function is called.
-  event AuthCast(bytes32 indexed transferId, address indexed dsaAddress, bool indexed success, address auth,  bytes returnedData);
+  event AuthCast(bytes32 indexed transferId, address indexed dsaAddress, bool indexed success, bytes authcastCallData, bytes returnedData);
 
   /// Modifiers
   /// @dev This modifier is used to ensure that only the Connext contract can call the function.
@@ -40,9 +40,9 @@ contract InstadappTarget is IXReceiver, InstadappAdapter {
   /// Public functions
   /// @dev This function is used to receive funds from Connext and forward them to DSA.
   /// Then it forwards the call to authCast function.
+  /// @param _transferId The id of the transfer.
   /// @param _amount The amount of funds that will be received.
   /// @param _asset The address of the asset that will be received.
-  /// @param _transferId The id of the transfer.
   /// @param _callData The data that will be sent to the targets.
   function xReceive(
     bytes32 _transferId,
@@ -54,19 +54,10 @@ contract InstadappTarget is IXReceiver, InstadappAdapter {
   ) external onlyConnext returns (bytes memory) {
     // Decode signed calldata
     // dsaAddress: address of DSA contract
-    // auth: address of Authority, which whitelisted at dsaContract.
-    // signature: signature is signed by the auth includes the castData with salt.
-    // castData: CastData required for execution at destination
-    // salt: salt for Signature Replay Protection, which is unique to each signature signed by auth.
-    // deadline: deadline for the cast to be valid
     (
       address dsaAddress,
-      address auth,
-      bytes memory _signature,
-      CastData memory _castData,
-      bytes32 salt,
-      uint256 deadline
-    ) = abi.decode(_callData, (address, address, bytes, CastData, bytes32, uint256));
+      bytes memory _authcastCallData
+    ) = abi.decode(_callData, (address, bytes));
 
     // verify the dsaAddress
     require(dsaAddress != address(0), "!invalidFallback");
@@ -78,17 +69,13 @@ contract InstadappTarget is IXReceiver, InstadappAdapter {
     // calling via encodeWithSignature as alternative to try/catch
     (bool success, bytes memory returnedData) = address(this).call(
       abi.encodeWithSignature(
-        "authCast(address,address,bytes,CastData,bytes32,uint256)",
+        "authCast(address,bytes)",
         dsaAddress,
-        auth,
-        _signature,
-        _castData,
-        salt,
-        deadline
+        _authcastCallData
       )
     );
 
-    emit AuthCast(_transferId, dsaAddress, success, auth, returnedData);
+    emit AuthCast(_transferId, dsaAddress, success, _authcastCallData, returnedData);
 
     return returnedData;
   }
