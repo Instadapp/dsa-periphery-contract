@@ -23,14 +23,10 @@ contract InstadappTargetTest is TestHelper, EIP712 {
   InstadappTarget instadappTarget;
   address instadappReceiver = 0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f;
 
+  uint256 deadline = 100;
+
   // ============ Events ============
-  event AuthCast(
-    bytes32 indexed transferId,
-    address indexed dsaAddress,
-    bool indexed success,
-    address auth,
-    bytes returnedData
-  );
+  event AuthCast(bytes32 indexed transferId, address indexed dsaAddress, bool indexed success, bytes authcastCallData, bytes returnedData);
 
   // ============ Test set up ============
   function setUp() public override {
@@ -71,12 +67,21 @@ contract InstadappTargetTest is TestHelper, EIP712 {
     _datas[1] = bytes("0x222");
     _datas[2] = bytes("0x333");
     address _origin = originSender;
+    bytes32 salt = bytes32(0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef);
 
     InstadappAdapter.CastData memory castData = InstadappAdapter.CastData(_targetNames, _datas, _origin);
     bytes
       memory signature = hex"d75642b5e0cfceac682011943f3586fefc3709594a89bf8087acc58d2009d85412aca8b1f9b63989de45da85f5ffcea52cc5077a61a2128fa7322a97523afe0e1b";
     address auth = originSender;
-    bytes memory callData = abi.encode(address(0), auth, signature, castData);
+
+    bytes memory authcastCallData = abi.encode(
+      auth,
+      signature,
+      castData,
+      salt,
+      deadline
+    );
+    bytes memory callData = abi.encode(address(0), authcastCallData);
 
     vm.prank(MOCK_CONNEXT);
     vm.expectRevert(bytes("!invalidFallback"));
@@ -102,7 +107,6 @@ contract InstadappTargetTest is TestHelper, EIP712 {
     address _origin = originSender;
     address dsa = address(0x111222333);
     bytes32 salt = bytes32(0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef);
-    uint256 deadline = 10000;
 
     InstadappAdapter.CastData memory castData = InstadappAdapter.CastData(_targetNames, _datas, _origin);
     bytes32 digest = MockInstadappReceiver(instadappReceiver).tryGetDigest(castData, salt, deadline);
@@ -110,11 +114,20 @@ contract InstadappTargetTest is TestHelper, EIP712 {
     (uint8 v, bytes32 r, bytes32 s) = vm.sign(1, digest);
     bytes memory signature = abi.encodePacked(r, s, v);
     address auth = originSender;
-    bytes memory callData = abi.encode(dsa, auth, signature, castData);
+
+    bytes memory authcastCallData = abi.encode(
+      auth,
+      signature,
+      castData,
+      salt,
+      deadline
+    );
+
+    bytes memory callData = abi.encode(dsa, authcastCallData);
 
     bytes memory returnedData = hex"";
     vm.expectEmit(true, false, false, true);
-    emit AuthCast(transferId, dsa, false, auth, returnedData);
+    emit AuthCast(transferId, dsa, false, authcastCallData, returnedData);
     deal(address(asset), address(instadappTarget), amount);
     vm.prank(MOCK_CONNEXT);
     instadappTarget.xReceive(transferId, amount, address(asset), address(0), 0, callData);

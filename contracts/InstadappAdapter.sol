@@ -54,19 +54,25 @@ contract InstadappAdapter is EIP712 {
   /// @dev This function is used to forward the call to dsa.cast function.
   /// Cast the call is forwarded, the signature is verified and the salt is stored in the sigReplayProtection mapping.
   /// @param dsaAddress The address of the DSA.
-  /// @param auth The address of the auth.
-  /// @param signature The signature by the auth. This signature is used to verify the SIG data.
-  /// @param castData The data that will be sent to the targets.
-  /// @param salt The salt that will be used to prevent replay attacks.
-  /// @param deadline The deadline that will be used to prevent replay attacks.
+  /// @param _authcastCallData The data that will be sent to the targets and used for signature verification.
   function authCast(
     address dsaAddress,
+    bytes memory _authcastCallData
+  ) internal {
+    /// Decode the _authcastCallData
+    // auth: address of Authority, which whitelisted at dsaContract.
+    // signature: signature is signed by the auth includes the castData with salt.
+    // castData: CastData required for execution at destination
+    // salt: salt for Signature Replay Protection, which is unique to each signature signed by auth.
+    // deadline: deadline for the cast to be valid
+    (
     address auth,
     bytes memory signature,
     CastData memory castData,
     bytes32 salt,
     uint256 deadline
-  ) internal {
+    ) = abi.decode(_authcastCallData, (address, bytes, CastData, bytes32, uint256));
+
     IDSA dsa = IDSA(dsaAddress);
     // check if Auth is valid, and included in the DSA
     require(auth != address(0) && dsa.isAuth(auth), "Invalid Auth");

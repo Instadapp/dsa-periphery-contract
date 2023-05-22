@@ -10,13 +10,9 @@ contract MockInstadappReceiver is InstadappAdapter {
 
   function tryAuthCast(
     address dsaAddress,
-    address auth,
-    bytes memory signature,
-    CastData memory castData,
-    bytes32 salt,
-    uint256 deadline
+    bytes memory authcastCallData
   ) external payable {
-    authCast(dsaAddress, auth, signature, castData, salt, deadline);
+    authCast(dsaAddress, authcastCallData);
   }
 
   function tryVerify(
@@ -71,8 +67,16 @@ contract InstadappAdapterTest is TestHelper {
     address auth = originSender;
     bytes32 salt = bytes32(abi.encode(1));
 
+    bytes memory authcastCallData = abi.encode(
+      auth,
+      signature,
+      castData,
+      salt,
+      deadline
+    );
+
     vm.expectRevert(bytes("Invalid Auth"));
-    MockInstadappReceiver(instadappReceiver).tryAuthCast(dsa, auth, signature, castData, salt, deadline);
+    MockInstadappReceiver(instadappReceiver).tryAuthCast(dsa, authcastCallData);
   }
 
   function test_InstadappAdapter__authCast_shouldRevertIfInvalidSignature() public {
@@ -96,7 +100,16 @@ contract InstadappAdapterTest is TestHelper {
     address auth = originSender;
     bytes32 salt = bytes32(abi.encode(1));
     vm.expectRevert(bytes("Invalid signature"));
-    MockInstadappReceiver(instadappReceiver).tryAuthCast(dsa, auth, signature, castData, salt, deadline);
+
+    bytes memory authcastCallData = abi.encode(
+      auth,
+      signature,
+      castData,
+      salt,
+      deadline
+    );
+
+    MockInstadappReceiver(instadappReceiver).tryAuthCast(dsa, authcastCallData);
   }
 
   function test_InstadappAdapter__authCast_shouldWork() public {
@@ -122,7 +135,16 @@ contract InstadappAdapterTest is TestHelper {
 
     address auth = originSender;
     vm.warp(timestamp);
-    MockInstadappReceiver(instadappReceiver).tryAuthCast{value: 1}(dsa, auth, signature, castData, salt, deadline);
+    
+    bytes memory authcastCallData = abi.encode(
+      auth,
+      signature,
+      castData,
+      salt,
+      deadline
+    );
+
+    MockInstadappReceiver(instadappReceiver).tryAuthCast(dsa, authcastCallData);
   }
 
   // ============ InstadappAdapter.verify ============
