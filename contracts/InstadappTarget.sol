@@ -13,7 +13,6 @@ import {InstadappAdapter} from "./InstadappAdapter.sol";
 /// @dev This contract is used to receive funds from Connext
 /// and forward them to Instadapp DSA via authCast function, In case of failure,
 /// funds are forwarded to fallback address defined by the user under callData.
-/// @custom:experimental This is an experimental contract.
 contract InstadappTarget is IXReceiver, InstadappAdapter {
   using SafeERC20 for IERC20;
   /// Storage

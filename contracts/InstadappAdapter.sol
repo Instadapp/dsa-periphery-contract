@@ -11,7 +11,6 @@ import {IDSA} from "./interfaces/IDSA.sol";
 /// @notice This contract is inherited by InstadappTarget, it includes the logic to verify signatures
 /// and execute the calls.
 /// @dev This contract is not meant to be used directly, it is meant to be inherited by other contracts.
-/// @custom:experimental This is an experimental contract.
 contract InstadappAdapter is EIP712 {
   /// Structs
   /// @dev This struct is used to encode the data for InstadappTarget.cast function.
@@ -123,5 +122,4 @@ contract InstadappAdapter is EIP712 {
   function getHash(CastData memory castData) internal pure returns (bytes32) {
     return keccak256(abi.encode(CASTDATA_TYPEHASH, castData.targetNames, castData.datas, castData.origin));
   }
-
 }
